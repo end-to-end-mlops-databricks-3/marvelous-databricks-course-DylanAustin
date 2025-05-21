@@ -33,11 +33,16 @@ dev = ["databricks-connect==15.4.5",
        "pip>=24.2",
        "pre-commit>=4.1.0, <5",
        "pytest>=8.3.4, <9",             # Added by MA
+       "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
     ]
 test = [
+    "pre-commit>=4.1.0, <5",
     "delta-spark==3.3.0",
-    "pyspark==3.5.3",
+    "pyspark==3.5.5",
     "pytest>=8.3.5",
+    "pytest-cov >=6.1.0",
+    "pydantic-settings>=2.8.1",
+    "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
 ]
 ci = ["databricks-connect==15.4.5",
        "ipykernel>=6.29.5, <7",
@@ -45,6 +50,7 @@ ci = ["databricks-connect==15.4.5",
        "pre-commit>=4.1.0, <5",
        "pytest>=8.3.4, <9",
        "pytest>=8.3.4, <9",
+       "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
     ]
     
 [build-system]

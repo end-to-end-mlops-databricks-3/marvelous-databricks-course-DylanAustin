@@ -14,8 +14,6 @@ https://www.kaggle.com/datasets/ahsan81/hotel-reservations-classification-datase
 """ Data preprocessing module for hotel reservations dataset."""
 """ This module is responsible for loading the data, performing exploratory data analysis (EDA), and preprocessing the data for further analysis."""
 
-import datetime
-
 import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp, to_utc_timestamp

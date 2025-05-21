@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  pull_request:
+  push:
     branches:
       - main
   pull_request:
@@ -34,7 +34,7 @@ jobs:
 
       - name: Install the dependencies
         run: |
-          uv sync --extra ci
+          uv sync --extra test
 
       - name: Run pre-commit checks
         run: |

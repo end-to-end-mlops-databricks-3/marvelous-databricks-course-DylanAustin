@@ -1,0 +1,8 @@
+2025-05-21 11:04:40.133 | INFO     | __main__:main:56 - Training set shape: %s
+2025-05-21 11:04:40.134 | INFO     | __main__:main:57 - Test set shape: %s
+2025-05-21 11:17:09.351 | INFO     | __main__:main:56 - Training set shape: %s
+2025-05-21 11:17:09.352 | INFO     | __main__:main:57 - Test set shape: %s
+2025-05-21 11:17:42.021 | INFO     | __main__:main:56 - Training set shape: %s
+2025-05-21 11:17:42.022 | INFO     | __main__:main:57 - Test set shape: %s
+2025-05-21 11:19:38.182 | INFO     | __main__:main:56 - Training set shape: %s
+2025-05-21 11:19:38.183 | INFO     | __main__:main:57 - Test set shape: %s

@@ -18,8 +18,6 @@ dependencies = ["mlflow==2.17.0",
                 "databricks-sdk==0.32.0",
                 "pydantic==2.9.2",
                 "loguru==0.7.3",
-                "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
-                # "marvelous@git+https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0"
                 ]
 
 dynamic = ['version']
@@ -32,7 +30,7 @@ dev = ["databricks-connect==15.4.5",
        "ipykernel>=6.29.5, <7",
        "pip>=24.2",
        "pre-commit>=4.1.0, <5",
-       "pytest>=8.3.4, <9",             # Added by MA
+       "pytest>=8.3.4, <9",
        "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
     ]
 test = [
@@ -44,14 +42,14 @@ test = [
     "pydantic-settings>=2.8.1",
     "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
 ]
-ci = ["databricks-connect==15.4.5",
-       "ipykernel>=6.29.5, <7",
-       "pip>=24.2",
-       "pre-commit>=4.1.0, <5",
-       "pytest>=8.3.4, <9",
-       "pytest>=8.3.4, <9",
-       "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
-    ]
+#ci = ["databricks-connect==15.4.5",
+#       "ipykernel>=6.29.5, <7",
+#       "pip>=24.2",
+#       "pre-commit>=4.1.0, <5",
+#       "pytest>=8.3.4, <9",
+#       "pytest>=8.3.4, <9",
+#       "marvelous@git+https://github.com/end-to-end-mlops-databricks-3/marvelous@0.1.0",
+#    ]
     
 [build-system]
 requires = ["setuptools>=72.0"]

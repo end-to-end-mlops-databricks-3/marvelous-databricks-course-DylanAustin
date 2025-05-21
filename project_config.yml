@@ -19,7 +19,7 @@ num_features:
 
 cat_features:
   - "type_of_meal_plan"
-  - "room_type_reserved" 
+  - "room_type_reserved"
   - "market_segment_type"
 
 # Target variable

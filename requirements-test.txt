@@ -1,0 +1,27 @@
+# Testing dependencies for hotel reservations preprocessing module
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Code quality and formatting
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+mypy>=1.0.0
+
+# Data science testing utilities
+pandas>=1.5.0
+numpy>=1.24.0
+scikit-learn>=1.2.0
+
+# Spark testing (if needed for integration tests)
+pyspark>=3.5.5
+
+# Configuration and YAML support
+pyyaml>=6.0
+pydantic>=1.10.0
+
+# Coverage reporting
+coverage>=7.0.0

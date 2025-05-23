@@ -1,0 +1,55 @@
+# Hotel Cancellation Prediction Project Configuration
+
+# Feature definitions
+num_features:
+  - "no_of_adults"
+  - "no_of_children"
+  - "no_of_weekend_nights"
+  - "no_of_week_nights"
+  - "required_car_parking_space"
+  - "lead_time"
+  - "arrival_year"
+  - "arrival_month"
+  - "arrival_date"
+  - "repeated_guest"
+  - "no_of_previous_cancellations"
+  - "no_of_previous_bookings_not_canceled"
+  - "avg_price_per_room"
+  - "no_of_special_requests"
+
+cat_features:
+  - "type_of_meal_plan"
+  - "room_type_reserved"
+  - "market_segment_type"
+
+# Target variable
+target: "is_canceled"
+
+# Model parameters
+parameters:
+  random_state: 42
+  test_size: 0.2
+  cv_folds: 5
+  grid_search_cv_folds: 3
+  early_stopping_rounds: 50
+  optimize_metric: "auc"
+  max_tree_depth: 15
+  model_verbosity: 1
+  regularization_alpha: 0.1
+  learning_rate: 0.01
+  n_estimators: 1000
+
+# MLflow experiment names
+experiment_name_basic: "hotel_cancellation_basic_model"
+experiment_name_custom: "hotel_cancellation_custom_model"
+
+# Environment-specific settings
+prd:
+  catalog_name: mlops_prd
+  schema_name: dylanaus
+acc:
+  catalog_name: mlops_acc
+  schema_name: dylanaus
+dev:
+  catalog_name: mlops_dev
+  schema_name: dylanaus

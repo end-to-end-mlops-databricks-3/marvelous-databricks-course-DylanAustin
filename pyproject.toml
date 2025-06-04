@@ -70,6 +70,12 @@ pythonpath = [ "." ]
 
 [tool.ruff]
 line-length = 120
+# Exclude notebooks and other non-standard Python files
+exclude = [
+    "notebooks/",
+    "*.ipynb",
+    "*.databricks.notebook.workflow-wrapper",
+]
 lint.select = [
     "F",    # pyflakes rules
     "E",    # pycodestyle error rules

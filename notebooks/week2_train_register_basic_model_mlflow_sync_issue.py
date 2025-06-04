@@ -1,14 +1,25 @@
 # Databricks notebook source
+"""Error when linking to MLFLow.
+
+Keeping for debugging later.
+
+Training notebook for hotel reservation cancellation prediction using basic model.
+
+This notebook trains and registers a LightGBM classification model for predicting
+hotel reservation cancellations in Databricks environment.
+
+This notebook is designed to be run in a Databricks.
+"""
+
+import os
 
 import mlflow
-import os
+from dotenv import load_dotenv
+from marvelous.common import is_databricks
 from pyspark.sql import SparkSession
 
 from hotel_reservations.config import ProjectConfig, Tags
 from hotel_reservations.models.basic_model import BasicModel
-
-from dotenv import load_dotenv
-from marvelous.common import is_databricks
 
 # COMMAND ----------
 # If you have DEFAULT profile and are logged in with DEFAULT profile,

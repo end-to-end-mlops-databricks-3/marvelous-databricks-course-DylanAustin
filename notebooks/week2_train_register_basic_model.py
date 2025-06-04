@@ -1,7 +1,11 @@
 # Databricks notebook source
-# MAGIC %md
-# MAGIC The below code is designed to be run in Databricks.
+"""Training notebook for hotel reservation cancellation prediction using basic model.
 
+This notebook trains and registers a LightGBM classification model for predicting
+hotel reservation cancellations in Databricks environment.
+
+This notebook is designed to be run in a Databricks.
+"""
 # COMMAND ----------
 
 # Set up the Python path to include the src directory
@@ -21,6 +25,7 @@ print(f"Python path: {sys.path[:3]}")  # Show first 3 entries
 
 # Install required packages
 %pip install lightgbm scikit-learn loguru
+
 
 # COMMAND ----------
 
@@ -111,7 +116,7 @@ basic_model.log_model()
 # Search for runs (optional verification)
 try:
     runs = mlflow.search_runs(
-        experiment_names=[config.experiment_name_basic], 
+        experiment_names=[config.experiment_name_basic],
         filter_string="tags.branch='week2'"
     )
     if len(runs) > 0:

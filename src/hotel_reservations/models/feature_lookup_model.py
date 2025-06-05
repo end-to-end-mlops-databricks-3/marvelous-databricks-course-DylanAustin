@@ -1,5 +1,6 @@
 """FeatureLookUp model implementation for hotel cancellation predictions."""
 
+import contextlib
 from datetime import datetime
 
 import mlflow
@@ -7,7 +8,7 @@ import pandas as pd
 
 try:
     from databricks import feature_engineering
-    from databricks.feature_engineering import FeatureFunction, FeatureLookup
+    from databricks.feature_engineering import FeatureLookup  # FeatureFunction,
     from databricks.sdk import WorkspaceClient
 except ImportError as e:
     print(f"Warning: Could not import Databricks feature engineering: {e}")
@@ -63,34 +64,32 @@ class FeatureLookUpModel:
         # Create the feature table with hotel-specific features
         self.spark.sql(f"""
         CREATE OR REPLACE TABLE {self.feature_table_name}
-        (Booking_ID STRING NOT NULL, 
-         avg_price_per_room DOUBLE, 
-         no_of_special_requests INT, 
+        (Booking_ID STRING NOT NULL,
+         avg_price_per_room DOUBLE,
+         no_of_special_requests INT,
          no_of_previous_cancellations INT);
         """)
-        
-        try:
-            self.spark.sql(f"ALTER TABLE {self.feature_table_name} ADD CONSTRAINT hotel_pk PRIMARY KEY(Booking_ID);")
-        except Exception:
+
+        with contextlib.suppress(Exception):
             # Primary key constraint might already exist
-            pass
-            
+            self.spark.sql(f"ALTER TABLE {self.feature_table_name} ADD CONSTRAINT hotel_pk PRIMARY KEY(Booking_ID);")
+
         self.spark.sql(f"ALTER TABLE {self.feature_table_name} SET TBLPROPERTIES (delta.enableChangeDataFeed = true);")
 
         # Populate with training data
         self.spark.sql(f"""
-            INSERT INTO {self.feature_table_name} 
-            SELECT Booking_ID, avg_price_per_room, no_of_special_requests, no_of_previous_cancellations 
+            INSERT INTO {self.feature_table_name}
+            SELECT Booking_ID, avg_price_per_room, no_of_special_requests, no_of_previous_cancellations
             FROM {self.catalog_name}.{self.schema_name}.train_set
         """)
-        
+
         # Populate with test data
         self.spark.sql(f"""
-            INSERT INTO {self.feature_table_name} 
-            SELECT Booking_ID, avg_price_per_room, no_of_special_requests, no_of_previous_cancellations 
+            INSERT INTO {self.feature_table_name}
+            SELECT Booking_ID, avg_price_per_room, no_of_special_requests, no_of_previous_cancellations
             FROM {self.catalog_name}.{self.schema_name}.test_set
         """)
-        
+
         logger.info("✅ Feature table created and populated.")
 
     def define_feature_function(self) -> None:
@@ -125,20 +124,17 @@ class FeatureLookUpModel:
 
         Creates a training set using FeatureLookup and direct calculation instead of FeatureFunction.
         """
-        from pyspark.sql.functions import col, datediff, make_date, current_date, greatest, lit
-        
+        from pyspark.sql.functions import col, current_date, datediff, greatest, lit, make_date
+
         # Calculate days_until_arrival directly in the DataFrame using PySpark functions
         train_set_with_days = self.train_set.withColumn(
             "days_until_arrival",
             greatest(
                 lit(0),
-                datediff(
-                    make_date(col("arrival_year"), col("arrival_month"), col("arrival_date")),
-                    current_date()
-                )
-            )
+                datediff(make_date(col("arrival_year"), col("arrival_month"), col("arrival_date")), current_date()),
+            ),
         )
-        
+
         self.training_set = self.fe.create_training_set(
             df=train_set_with_days,
             label=self.target,
@@ -154,43 +150,53 @@ class FeatureLookUpModel:
         )
 
         self.training_df = self.training_set.load_df().toPandas()
-        
+
         # Calculate days_until_arrival for test set manually
         today = datetime.now().date()
-        def calc_days_until_arrival(row):
+
+        def calc_days_until_arrival(row: pd.Series) -> int:
             try:
-                arrival_date_obj = datetime(int(row['arrival_year']), int(row['arrival_month']), int(row['arrival_date'])).date()
+                arrival_date_obj = datetime(
+                    int(row["arrival_year"]), int(row["arrival_month"]), int(row["arrival_date"])
+                ).date()
                 days_diff = (arrival_date_obj - today).days
                 return max(0, days_diff)
-            except:
+            except (ValueError, TypeError, KeyError, OverflowError):
                 return 0
-                
+
         self.test_set["days_until_arrival"] = self.test_set.apply(calc_days_until_arrival, axis=1)
 
         # Build feature columns properly
         feature_columns = []
-        
+
         # Add numeric features (excluding lookup features)
         for feature_col in self.num_features:
-            if feature_col not in ["avg_price_per_room", "no_of_special_requests", "no_of_previous_cancellations"] and feature_col in self.training_df.columns:
+            if (
+                feature_col not in ["avg_price_per_room", "no_of_special_requests", "no_of_previous_cancellations"]
+                and feature_col in self.training_df.columns
+            ):
                 feature_columns.append(feature_col)
-        
-        # Add categorical features 
+
+        # Add categorical features
         for feature_col in self.cat_features:
             if feature_col in self.training_df.columns:
                 feature_columns.append(feature_col)
-        
+
         # Add lookup features
         feature_columns.extend(["avg_price_per_room", "no_of_special_requests", "no_of_previous_cancellations"])
-        
+
         # Add computed feature
         feature_columns.append("days_until_arrival")
-        
+
         # Remove any non-feature columns
-        feature_columns = [feature_col for feature_col in feature_columns if feature_col in self.training_df.columns and feature_col not in ["Booking_ID", "arrival_date_full"]]
-        
+        feature_columns = [
+            feature_col
+            for feature_col in feature_columns
+            if feature_col in self.training_df.columns and feature_col not in ["Booking_ID", "arrival_date_full"]
+        ]
+
         logger.info(f"Selected feature columns: {feature_columns}")
-        
+
         self.X_train = self.training_df[feature_columns]
         self.y_train = self.training_df[self.target]
         self.X_test = self.test_set[feature_columns]
@@ -209,10 +215,10 @@ class FeatureLookUpModel:
 
         # Filter categorical features that are actually present
         available_cat_features = [col for col in self.cat_features if col in self.X_train.columns]
-        
+
         preprocessor = ColumnTransformer(
-            transformers=[("cat", OneHotEncoder(handle_unknown="ignore"), available_cat_features)], 
-            remainder="passthrough"
+            transformers=[("cat", OneHotEncoder(handle_unknown="ignore"), available_cat_features)],
+            remainder="passthrough",
         )
 
         pipeline = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", LGBMClassifier(**self.parameters))])
@@ -245,7 +251,7 @@ class FeatureLookUpModel:
             mlflow.log_metric("recall", recall)
             mlflow.log_metric("f1_score", f1)
             mlflow.log_metric("roc_auc", roc_auc)
-            
+
             signature = infer_signature(self.X_train, y_pred)
 
             self.fe.log_model(
@@ -262,7 +268,7 @@ class FeatureLookUpModel:
         Registers the model and sets alias to 'latest-model'.
         """
         model_name = f"{self.catalog_name}.{self.schema_name}.hotel_cancellation_model_fe"
-        
+
         registered_model = mlflow.register_model(
             model_uri=f"runs:/{self.run_id}/lightgbm-pipeline-model-fe",
             name=model_name,
@@ -278,7 +284,7 @@ class FeatureLookUpModel:
             alias="latest-model",
             version=latest_version,
         )
-        
+
         logger.info(f"✅ Model registered as version {latest_version} with alias 'latest-model'")
 
         return latest_version
@@ -337,12 +343,15 @@ class FeatureLookUpModel:
         :return: True if the current model performs better, False otherwise.
         """
         # Prepare test features (excluding lookup features and target)
-        feature_columns = [col for col in self.num_features + self.cat_features 
-                          if col not in ["avg_price_per_room", "no_of_special_requests", "no_of_previous_cancellations"]]
+        feature_columns = [
+            col
+            for col in self.num_features + self.cat_features
+            if col not in ["avg_price_per_room", "no_of_special_requests", "no_of_previous_cancellations"]
+        ]
         feature_columns.append("Booking_ID")  # Include ID for lookup
-        
+
         X_test = test_set.select(*feature_columns)
-        
+
         # Ensure proper data types
         X_test = X_test.withColumn("arrival_year", F.col("arrival_year").cast("int"))
         X_test = X_test.withColumn("arrival_month", F.col("arrival_month").cast("int"))
@@ -369,7 +378,7 @@ class FeatureLookUpModel:
 
         # Convert to pandas for easier metric calculation
         df_pandas = df.toPandas()
-        
+
         # Calculate F1 scores for each model
         f1_current = f1_score(df_pandas[self.target], df_pandas["prediction_current"])
         f1_latest = f1_score(df_pandas[self.target], df_pandas["prediction_latest"])

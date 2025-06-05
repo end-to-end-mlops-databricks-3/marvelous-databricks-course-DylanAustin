@@ -75,6 +75,7 @@ exclude = [
     "notebooks/",
     "*.ipynb",
     "*.databricks.notebook.workflow-wrapper",
+    "typings/__builtins__.pyi",
 ]
 lint.select = [
     "F",    # pyflakes rules

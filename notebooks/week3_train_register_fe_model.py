@@ -67,7 +67,7 @@ test_set = spark.table(f"{config.catalog_name}.{config.schema_name}.test_set").l
 
 # Drop feature lookup columns and target for prediction
 # Keep only the features that are not looked up from the feature table
-feature_columns = [col for col in config.num_features + config.cat_features 
+feature_columns = [col for col in config.num_features + config.cat_features
                    if col not in ["avg_price_per_room", "no_of_special_requests", "no_of_previous_cancellations"]]
 feature_columns.append("Booking_ID")  # Include ID for feature lookup
 

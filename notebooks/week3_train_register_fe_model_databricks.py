@@ -1,6 +1,4 @@
 # Databricks notebook source
-dbutils.library.restartPython()
-
 # COMMAND ----------
 
 """Training notebook for hotel reservation cancellation prediction using feature engineering.
@@ -58,7 +56,7 @@ fe_model = FeatureLookUpModel(config=config, tags=tags, spark=spark)
 # COMMAND ----------
 
 # Create feature table
-fe_model.create_feature_table()                                                                                      
+fe_model.create_feature_table()
 
 # COMMAND ----------
 
